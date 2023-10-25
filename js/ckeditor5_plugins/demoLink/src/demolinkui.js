@@ -16,6 +16,7 @@ import {
 import demoLinkIcon from '../../../icons/demo-link.svg';
 import FormView from './ui/demolinkformview';
 import {
+  findElement,
   Utils
 } from './utils';
 
@@ -45,6 +46,7 @@ export default class DemoLinkUI extends Plugin {
 
     this._addToolbarButton();
     this.formView = this._createFormView();
+    this._handleSelection();
   }
 
   /**
@@ -163,6 +165,56 @@ export default class DemoLinkUI extends Plugin {
 
     // Reset the focus to the first form element.
     this.formView.focus();
+  }
+
+  /**
+   * Handles the selection specific cases (right before or after the element).
+   *
+   * @private
+   */
+  _handleSelection() {
+    const editor = this.editor;
+
+    this.listenTo(editor.editing.view.document, 'selectionChange', (eventInfo, eventData) => {
+      const selection = editor.model.document.selection;
+
+      let el = selection.getSelectedElement() ?? selection.getFirstRange().getCommonAncestor();
+
+      // The selected element is outside of a demo link.
+      if (!['demoLinkText', 'demoLinkFileExtension'].includes(el.name)) {
+        this._hideUI();
+        return;
+      }
+
+      this._showUI();
+
+      const positionBefore = editor.model.createPositionBefore(el);
+      const positionAfter = editor.model.createPositionAfter(el);
+
+      const position = selection.getFirstPosition();
+
+      // Define which child element will be used for afterTouch;
+      const demoLinkEl = findElement(selection, 'demoLink');
+      var hasFileExtension = false;
+      for (const child of demoLinkEl.getChildren()) {
+        if (child.name === 'demoLinkFileExtension') {
+          hasFileExtension = true;
+          continue;
+        }
+      }
+      const afterTouchChildElName = hasFileExtension ? 'demoLinkFileExtension' : 'demoLinkText';
+
+      const beforeTouch = el.name == 'demoLinkText' && position.isTouching( positionBefore );
+      const afterTouch = el.name == afterTouchChildElName && position.isTouching( positionAfter );
+
+      // Handle the "border" selection.
+      if (beforeTouch || afterTouch) {
+        editor.model.change(writer => {
+          writer.setSelection(el.findAncestor('demoLink'), 'on');
+        });
+      }
+
+    });
   }
 
   /**

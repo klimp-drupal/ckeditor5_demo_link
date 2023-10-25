@@ -22,8 +22,33 @@ export default class DemoLinkCommand extends Command {
    * @inheritDoc
    */
   refresh() {
+    // Demo link Toolbar button is always enabled.
     this.isEnabled = true;
+
+    // Init the empty command value.
     this.value = null;
+
+    // Find the element in the selection.
+    const { selection } = this.editor.model.document;
+    const demoLinkEl = findElement(selection, 'demoLink');
+    if (!demoLinkEl) {
+      return;
+    }
+
+    // Populate command value.
+    this.value = {};
+
+    // Process demoLink attributes (demoLinkUrl & demoLinkClass).
+    for (const [attrKey, attrValue] of demoLinkEl.getAttributes()) {
+      this.value[attrKey] = attrValue;
+    }
+
+    // Process demoLink children (demoLinkText & demoLinkFileExtension).
+    for (const childNode of demoLinkEl.getChildren()) {
+      const childTextNode = childNode.getChild(0);
+      const dataNotEmpty = childTextNode && childTextNode._data;
+      this.value[childNode.name] = dataNotEmpty ? childTextNode._data : '';
+    }
   }
 
   /**

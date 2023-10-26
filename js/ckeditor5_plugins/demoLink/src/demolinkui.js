@@ -91,10 +91,11 @@ export default class DemoLinkUI extends Plugin {
    * @private
    */
   _createFormView() {
-    const formView = new FormView( this.editor.locale );
+    // The FormView defined in src/ui/demolinkformview.js
+    const formView = new FormView(this.editor.locale);
 
     // Form submit handler.
-    this.listenTo( formView, 'submit', () => {
+    this.listenTo(formView, 'submit', () => {
 
       let values = {
         demoLinkText: formView.textInputView.fieldView.element.value,
@@ -106,7 +107,7 @@ export default class DemoLinkUI extends Plugin {
 
       // Hide the form view after submit.
       this._hideUI();
-    } );
+    });
 
     // Hide the form view after clicking the "Cancel" button.
     this.listenTo( formView, 'cancel', () => {
@@ -139,8 +140,14 @@ export default class DemoLinkUI extends Plugin {
 
     const command = this.editor.commands.get('demoLink');
 
+    const modelToFormFields = {
+      demoLinkText: 'textInputView',
+      demoLinkFileExtension: 'fileExtensionInputView',
+      demoLinkUrl: 'urlInputView',
+    };
+
     // Handle text input fields.
-    Object.entries(Utils.getModelToInputFormFieldsMapping()).forEach(([modelName, formElName]) => {
+    Object.entries(modelToFormFields).forEach(([modelName, formElName]) => {
 
       const formEl = this.formView[formElName];
 

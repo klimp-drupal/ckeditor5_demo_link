@@ -98,18 +98,13 @@ export default class DemoLinkCommand extends Command {
    * @private
    */
   _editElement(writer, modelEl, values) {
-
-    // Filter out non-attribute values.
-    var modelAttrs = Object.fromEntries(
-      Object.entries(values).filter(function ([key, value]) {
-        return Utils.getDemoLinkModelAttrKeys().includes(key);
-      })
-    );
-
-    modelAttrs['demoLinkClass'] = 'demo-link';
+    // Clear modelEl attributes.
+    writer.clearAttributes(modelEl);
 
     // Set modelEl attributes.
-    writer.clearAttributes(modelEl);
+    var modelAttrs = {};
+    modelAttrs.demoLinkUrl = values['demoLinkUrl'];
+    modelAttrs.demoLinkClass = 'demo-link';
     writer.setAttributes(modelAttrs, modelEl);
 
     // Get modelEl children elements names.

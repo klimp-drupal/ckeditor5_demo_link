@@ -1,4 +1,4 @@
-name: CIHI Demo Link
+name: CKEditor5 Demo Link
 type: module
 description: Adds CKEditor5 Demo Link plugin.
 core_version_requirement: ^9 || ^10
